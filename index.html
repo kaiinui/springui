@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .ball {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            background: orangered;
+
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -40px;
+            margin-top: -40px;
+
+            z-index: 10;
+        }
+    </style>
+    <script src="rebound.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="_js_spring ball"></div>
+
+    <script>
+        var uiSpring = document.querySelector("._js_spring");
+
+        var springSystem = new rebound.SpringSystem();
+        var spr = springSystem.createSpring(40, 4);
+        spr.addListener({
+            el: null,
+            onSpringUpdate: function(spr) {
+                this.el = this.el || uiSpring;
+                var val = spr.getCurrentValue();
+
+                var dx = dxOnMouseUp * val;
+                var dy = dyOnMouseUp * val;
+
+                spring.style.setProperty("transform", "translate(" + dx + "px, " + dy + "px)")
+            }
+        });
+
+        var spring = document.querySelector("._js_spring");
+        var isSpringMoving = false;
+        var xOnMouseDown = 0;
+        var yOnMouseDown = 0;
+        var dxOnMouseUp = 0;
+        var dyOnMouseUp = 0;
+
+        spring.addEventListener("touchstart", function(e) {
+            e.preventDefault();
+
+            dxOnMouseUp = 0;
+            dyOnMouseUp = 0;
+
+            isSpringMoving = true;
+            spr.setCurrentValue(0);
+
+            var t = e.touches[0];
+
+            xOnMouseDown = t.screenX;
+            yOnMouseDown = t.screenY;
+
+            console.log("Start dragging at (" + xOnMouseDown + ", " + yOnMouseDown + ")");
+        });
+
+        document.addEventListener("touchend", function() {
+            isSpringMoving = false;
+            spr.setCurrentValue(1);
+            spr.setEndValue(0);
+
+            spring.style.setProperty("transform", "");
+        });
+
+        document.addEventListener("touchmove", function(e) {
+            e.preventDefault();
+
+            if (!isSpringMoving) { return; }
+
+            var touch = e.touches[0];
+
+            var dx = touch.screenX - xOnMouseDown;
+            var dy = touch.screenY - yOnMouseDown;
+
+            console.log("(" + dx + ", " + dy + ")");
+
+            dxOnMouseUp = dx;
+            dyOnMouseUp = dy;
+
+            spring.style.setProperty("transform", "translate(" + dx + "px, " + dy + "px)")
+        });
+    </script>
+</body>
+</html>
